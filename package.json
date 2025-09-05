@@ -1,8 +1,8 @@
 {
-  "name": "my-v0-project",
+  "name": "prima_academy",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo 'no build script'"
+    "build": "echo 'This project does not require a build step'"
   }
 }
