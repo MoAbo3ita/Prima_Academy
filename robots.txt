@@ -1,3 +1,10 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
 User-agent: *
 Allow: /
+
 Sitemap: https://prima-academy-brown.vercel.app/sitemap.xml
