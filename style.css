@@ -139,13 +139,17 @@ body::before {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #2c5aa0 0%, #1e3d72 100%);
-  color: white;
-  padding: 120px 0 80px;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("background.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  color: white;
   position: relative;
-  overflow: hidden;
-  transform-style: preserve-3d;
 }
 
 .hero::before {
@@ -905,6 +909,17 @@ body::before {
   }
 }
 
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Registration Section */
 .registration {
   padding: 80px 0;
@@ -1341,6 +1356,54 @@ body::before {
 
 .error-message i {
   margin-left: 0.5rem;
+}
+
+.success-message-with-whatsapp {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  animation: slideInFromTop 0.5s ease-out;
+}
+
+.success-message-with-whatsapp .whatsapp-option {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.success-message-with-whatsapp .whatsapp-option p {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.whatsapp-btn {
+  background: #25d366;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.whatsapp-btn:hover {
+  background: #128c7e;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn i {
+  font-size: 1.2rem;
 }
 
 /* Form Validation Styles */

@@ -338,7 +338,84 @@ function clearFormData() {
   console.log("تم مسح جميع بيانات النموذج بنجاح")
 }
 
-// Form Submission Handler with Enhanced Clearing
+// WhatsApp integration function
+function sendToWhatsApp(formData) {
+  const phoneNumber = "+201060829075" // رقم الواتساب للأكاديمية
+
+  // إنشاء رسالة منسقة
+  const message = `
+🎓 *طلب تسجيل جديد - أكاديمية بريما*
+
+👤 *الاسم:* ${formData.get("fullName")}
+📧 *البريد الإلكتروني:* ${formData.get("email")}
+📱 *رقم الهاتف:* ${formData.get("phone")}
+📚 *المستوى المطلوب:* ${formData.get("course")}
+🎯 *الخبرة السابقة:* ${formData.get("experience") || "غير محدد"}
+📝 *ملاحظات:* ${formData.get("message") || "لا توجد ملاحظات"}
+
+---
+تم الإرسال من موقع أكاديمية بريما للغات والترجمة
+    `.trim()
+
+  // ترميز الرسالة للـ URL
+  const encodedMessage = encodeURIComponent(message)
+
+  // إنشاء رابط الواتساب
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+
+  return whatsappUrl
+}
+
+function showSuccessMessageWithWhatsApp(whatsappUrl) {
+  const successMessage = document.createElement("div")
+  successMessage.className = "success-message-with-whatsapp show"
+  successMessage.innerHTML = `
+        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+        <h3>تم إرسال طلب التسجيل بنجاح!</h3>
+        <p>شكراً لك! تم حفظ بياناتك وسنتواصل معك قريباً.</p>
+        
+        <div class="whatsapp-option">
+            <p>💬 للتواصل السريع، يمكنك إرسال طلبك عبر الواتساب أيضاً:</p>
+            <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
+                <i class="fab fa-whatsapp"></i>
+                إرسال عبر الواتساب
+            </a>
+        </div>
+    `
+
+  const formContainer = document.querySelector(".registration-form-container")
+  formContainer.insertBefore(successMessage, formContainer.firstChild)
+
+  setTimeout(() => {
+    successMessage.remove()
+  }, 10000) // عرض لمدة 10 ثوان
+}
+
+// Fallback WhatsApp option when Google Sheets fails
+function showWhatsAppFallback(whatsappUrl) {
+  const fallbackMessage = document.createElement("div")
+  fallbackMessage.className = "success-message-with-whatsapp show"
+  fallbackMessage.innerHTML = `
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 10px; color: #ffc107;"></i>
+        <h3>مشكلة مؤقتة في الإرسال</h3>
+        <p>حدثت مشكلة مؤقتة، لكن يمكنك إرسال طلبك مباشرة عبر الواتساب:</p>
+        
+        <div class="whatsapp-option">
+            <a href="${whatsappUrl}" target="_blank" class="whatsapp-btn">
+                <i class="fab fa-whatsapp"></i>
+                إرسال طلب التسجيل عبر الواتساب
+            </a>
+        </div>
+    `
+
+  const formContainer = document.querySelector(".registration-form-container")
+  formContainer.insertBefore(fallbackMessage, formContainer.firstChild)
+
+  setTimeout(() => {
+    fallbackMessage.remove()
+  }, 8000)
+}
+
 registrationForm.addEventListener("submit", function (e) {
   e.preventDefault()
 
@@ -350,6 +427,9 @@ registrationForm.addEventListener("submit", function (e) {
   const originalText = submitBtn.innerHTML
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...'
   submitBtn.disabled = true
+
+  // إنشاء رابط الواتساب
+  const whatsappUrl = sendToWhatsApp(formData)
 
   // Send data to Google Sheets
   fetch(GOOGLE_SCRIPT_URL, {
@@ -363,8 +443,8 @@ registrationForm.addEventListener("submit", function (e) {
       submitBtn.disabled = false
 
       if (data.result === "success") {
-        // Show success message
-        showSuccessMessage()
+        // Show enhanced success message with WhatsApp option
+        showSuccessMessageWithWhatsApp(whatsappUrl)
 
         // Reset form completely
         this.reset()
@@ -373,7 +453,7 @@ registrationForm.addEventListener("submit", function (e) {
         clearFormData()
 
         // Scroll to success message
-        const successMessage = document.querySelector(".success-message")
+        const successMessage = document.querySelector(".success-message-with-whatsapp")
         if (successMessage) {
           successMessage.scrollIntoView({
             behavior: "smooth",
@@ -381,7 +461,7 @@ registrationForm.addEventListener("submit", function (e) {
           })
         }
 
-        console.log("تم إرسال البيانات بنجاح إلى Google Sheets وتم مسح النموذج")
+        console.log("تم إرسال البيانات بنجاح إلى Google Sheets وتم إنشاء رابط الواتساب")
       } else {
         throw new Error(data.error || "حدث خطأ في الإرسال")
       }
@@ -393,27 +473,10 @@ registrationForm.addEventListener("submit", function (e) {
 
       console.error("خطأ في إرسال البيانات:", error)
 
-      // Show error message
-      showErrorMessage("حدث خطأ في إرسال البيانات. يرجى المحاولة مرة أخرى.")
+      // في حالة فشل Google Sheets، اعرض رسالة مع خيار الواتساب فقط
+      showWhatsAppFallback(whatsappUrl)
     })
 })
-
-// Add error message function
-function showErrorMessage(message) {
-  const errorMessage = document.createElement("div")
-  errorMessage.className = "error-message show"
-  errorMessage.innerHTML = `
-        <i class="fas fa-exclamation-circle"></i>
-        ${message}
-    `
-
-  const formContainer = document.querySelector(".registration-form-container")
-  formContainer.insertBefore(errorMessage, formContainer.firstChild)
-
-  setTimeout(() => {
-    errorMessage.remove()
-  }, 5000)
-}
 
 // Navbar scroll effect
 window.addEventListener("scroll", () => {
